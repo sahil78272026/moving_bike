@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transportation Services Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            {% comment %} margin: 0;
+            padding: 0; {% endcomment %}
+        }
+
+        .invoice {
+            max-width: 800px;
+            {% comment %} margin: 0 auto;
+            padding: 20px; {% endcomment %}
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .invoice-header img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .invoice-header h1 {
+            font-size: 28px;
+            margin: 10px 0;
+        }
+
+        .invoice-customer-info {
+            margin-bottom: 20px;
+        }
+
+        .invoice-customer-info p {
+            margin: 0;
+        }
+
+        .invoice-addresses {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .invoice-locations {
+            flex: 1;
+        }
+
+        .invoice-details {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .invoice-details p {
+            margin: 0;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            margin-top: 10px;
+            text-align: center;
+
+        }
+
+    
+        .invoice-table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 10px;
+        }
+
+        .invoice-table th {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* position: sticky;
+            top: 0; */
+            /* margin-bottom: 12px; */
+            background-color: #f2f2f2;
+        }
+
+        .invoice-total {
+            text-align: right;
+        }
+
+        .invoice-total p {
+            margin: 0;
+        }
+
+        .invoice-summary {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        .flex-container {
+            display: flex;
+            /* align: center;
+            {% comment %} justify-content: space-between; {% endcomment %} */
+        }
+        
+        table, th, td {
+  border:1px solid black;
+  /* margin: 10px; */
+}
+
+        .invoice-customer-info p,
+.invoice-details p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+    </style>
+</head>
+<body>
+    <div class="invoice-customer-info">
+    <div class="invoice">
+        <div class="invoice-header">
+            <p>Unite</p>
+            <img src="https://trackerfilestore.blob.core.windows.net/trackerbackendimage/trackerfilestore.blob.core.windows.net/logo.png" alt="Company Logo">
+            <h1>Transportation Services Invoice</h1>
+        </div>
+
+        <!-- <div class="flex-container">
+            <p><strong>Vendor Information :</strong></p>
+            <p><strong>Vendor Name:</strong> {{ admin_name }}</p>
+            <p><strong>Vendor Id:</strong> {{ admin_id }}</p>
+            <p><strong>Fleet Id:</strong> {{ fleet_id }}</p>
+            <p><strong>GST :</strong> {{ gst }}</p>
+            <p><strong>Customer Imformation :</strong></p>
+            <p><strong>Customer Name:</strong> {{ customer_name }}</p>
+            <p><strong>Customer Email:</strong> {{ customer_email }}</p>
+            <p><strong>Customer Phone:</strong> {{ customer_mobile }}</p>
+            <p><strong>Source: </strong> {{ starting_point }}</p>
+            <p><strong>Destination :</strong> {{ destination }}</p>
+            <p><strong>Invoice Date:</strong> {{ payment_date }}</p>
+            <p><strong>Invoice Number:</strong> {{ razorpay_order_id }}</p>
+            <p><strong>Pickup Date :</strong> {{ pickup_date }}</p>
+            <p><strong>Pickup Time :</strong> {{ pickup_time }}</p>
+            <p><strong>P.P Contact No. :</strong> {{ pp_contact_no }}</p>
+
+        </div> -->
+        
+        <table style="padding: 2px;">
+            <tr>
+                <th>Vendor Information</th>
+                <th>Customer Information</th>
+                <th>Customer Information</th>
+        
+            </tr>
+            <tr>
+                <td >
+                    Vendor Name: {{ admin_name }}<br>
+                    Vendor Id: {{ admin_id }}<br>
+                    Fleet Id: {{ Vehicle_Number }}<br>
+                    GST : {{ gst }}
+                </td>
+                <td >
+                    Customer Name: {{ customer_name }}<br>
+                    Customer Email: {{ customer_email }}<br>
+                    Customer Phone: {{ customer_mobile }}<br>
+                    Source: {{ starting_point }}<br>
+                    Destination: {{ destination }}
+        
+        
+                </td>
+        
+                <td
+                 >
+                 
+                    Invoice Date: {{ payment_date }}<br>
+                    Invoice Number: {{ transaction_id }}<br>
+                    Pickup Date: {{ "-" }}<br>
+                    Pickup Time: {{ "-" }}<br>
+                    P.P Contact No: {{ "-" }}
+        
+        
+                </td>
+        
+            </tr>
+        
+        </table>
+
+          <!-- <tr>
+              <td>Vendor Id: {{ admin_id }}</td>
+              <td>Customer Email: {{ customer_email }}</td>
+            </tr> -->
+
+
+
+       
+        <!-- <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Material Type</th>
+                    <th>Material Subtype</th>
+                    <th>Dimension</th>
+                    <th>Vendor Id</th>
+                    <th>Weight (kg)</th>
+                    <th>Amount ($)</th>
+                </tr>
+            </thead>
+            <tbody> -->
+                <!-- Loop through your transportation records and populate the table rows -->
+                
+                <!-- <tr>
+                    <td>{{ material }}</td>
+                    <td>{{ submaterial }}</td>
+                    <td>{{ Dimension }}</td>
+                    <td>{{ kuch_bhi }}</td>
+                    <td>{{ material_weight }}</td>
+                    <td>{{ amount_paid }}</td>
+                </tr>
+                
+            </tbody>
+        </table> -->
+        <table style="width:100%;padding: 2px;">
+            <tr>
+              <th>Material Type</th>
+              <th>Material Subtype</th>
+              <th>Dimension</th>
+              <th>Weight (kg)</th>
+              <th>Amount ($)</th>
+            </tr>
+            <tr style="padding: 1px; text-align: center;">
+                <td>{{ material }}</td>
+                <td>{{ submaterial }}</td>
+                <td>{{ "-" }}</td>
+                <td>{{ material_weight }}</td>
+                <td>{{ amount_paid }}</td>
+            </tr>
+            <!-- <tr>
+              <td>Centro comercial Moctezuma</td>
+              <td>Francisco Chang</td>
+              <td>Mexico</td>
+            </tr> -->
+          </table>
+        <div class="invoice-total">
+            <p><strong>Subtotal:</strong> {{ amount_paid }}</p>
+            <p><strong>GST:</strong> {{ gst }}</p>
+            <p><strong>Total Amount:</strong> {{ total_amount }}</p>
+        </div>
+        
+        <div class="footer">
+            <p>Thank you for choosing our transportation services.</p>
+        </div>
+
+        <div class="invoice-total">
+    <p><strong>Crosslynx Seal</strong></p>
+   
+</div>
+
+        
+
+
+    </div>
+    
+</div>
+
+</body>
+</html>
+
