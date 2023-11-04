@@ -89,4 +89,25 @@ class AdminSubscriptionSerializer(serializers.ModelSerializer):
         model=AdminSubscription
         fields=['subscription_period','payment_id','sub_start_date','sub_end_date','payment_status','payment_type']
 
+class VendorDetailSerializer(serializers.ModelSerializer):
+    mobile=serializers.SerializerMethodField()
+    email=serializers.SerializerMethodField()
+    class Meta:
+        model=AdminProfile
+        fields=['company_name','gst','address','mobile','email','pan_number']
+    def get_mobile(self,obj):
+        admin=obj.user_id 
+        if admin:
+            admin_obj=User.objects.get(id=admin)
+            return admin_obj.mobile 
+    def get_email(self,obj):
+        admin=obj.user_id 
+        if admin:
+            try:
+                admin_obj=User.objects.get(id=admin)
+                return admin_obj.email 
+            except:
+                pass
+        return None
+
 

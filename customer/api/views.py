@@ -122,11 +122,11 @@ from django.db.models import Q
 #             return Response(response_payload)
     
 
-class CreateOTPView(viewsets.ViewSet):
+class CreateOTPView(viewsets.ViewSet): 
     def create(self, request):
         mobile = request.data.get('mobile')
         country_code = request.data.get('country_code')
-        type = request.data.get('type')
+        # type = request.data.get('type')
         fcm_token=request.data.get('fcm_token')
         if not mobile:
             response_payload = {
@@ -145,88 +145,65 @@ class CreateOTPView(viewsets.ViewSet):
                 'result': 'otp not created',
                 'additional_data': {},
             }
-            return Response(response_payload)            
+            return Response(response_payload)
+                    
         user_object,created = User.objects.get_or_create(mobile=mobile, role='customer')
-        print(user_object)
-        print(user_object.type)
-        user_object.fcm_token=fcm_token
-        user_object.role='customer'
-        user_object.save()
-        print(user_object.type)
 
-        if type=='Organization' and user_object.type!='Organization':
+        if created:
+            user_object.country_code=country_code
+            user_object.type="Individual"
+            user_object.mobile=mobile
+            user_object.fcm_token=fcm_token
+            user_object.role='customer'
+            user_object.save()
+            profile, created = Profile.objects.get_or_create(user=user_object)
+            profile.save()
+            user_object.save()
+            otp_object,created =MobileOTP.objects.get_or_create(user=user_object)
+            otp_object.mobile=mobile
+            otp_object.otp=send_otp(mobile,country_code)["otp"]  
+            otp_object.time=int(float((datetime.now().timestamp())))
+            otp_object.save()
             response_payload = {
-                'is_authenticated': False,
-                'status':status.HTTP_400_BAD_REQUEST,
-                'messages': 'This user do not exist',
-                'result': 'This user do not exist',
-                'additional_data': {},
+            'is_authenticated': True,
+            'status': status.HTTP_201_CREATED,
+            "mobile_no":str(user_object.mobile),
+            'messages': 'OTP send succesfully on your registered mobile number',
+            'result': [],
+            'additional_data': {},
+            }
+            return Response(response_payload)        
+
+        elif user_object.type=='Organization' or user_object.type=='Individual':
+            user_object.fcm_token=fcm_token
+            profile, created = Profile.objects.get_or_create(user=user_object)
+            profile.save()
+            user_object.save()
+            otp_object,created =MobileOTP.objects.get_or_create(user=user_object)
+            otp_object.mobile=mobile
+            otp_object.otp=send_otp(mobile,country_code)["otp"]  
+            otp_object.time=int(float((datetime.now().timestamp())))
+            otp_object.save()
+            response_payload = {
+            'is_authenticated': True,
+            'status': status.HTTP_201_CREATED,
+            "mobile_no":str(user_object.mobile),
+            'messages': 'OTP send succesfully on your registered mobile number',
+            'result': [],
+            'additional_data': {},
             }
             return Response(response_payload)
-
-
-        if user_object.type=='Organization' :
-            if type=='Organization':
-                if user_object.mobile==mobile:
-                        # user_object.fcm_token=fcm_token
-                        otp_object,created =MobileOTP.objects.get_or_create(user=user_object)
-                        otp_object.mobile=mobile
-                        otp_object.otp=send_otp(mobile,country_code)["otp"]
-                        otp_object.time=int(float((datetime.now().timestamp())))
-                        otp_object.save()
-                        resp = {
-                    'is_authenticated': True,
-                    'status':status.HTTP_201_CREATED,
-                    'message':'OTP sent successfully on your registered mobile number',
-                    'result': '',
-                    'additional_data': {},
-                    }
-                        return JsonResponse(resp)
-            else:
-                response_payload = {
-                'is_authenticated': False,
-                'status':status.HTTP_400_BAD_REQUEST,
-                'messages': 'This number is already registered as Organization',
-                'result': 'This number is already registered as Organization',
-                'additional_data': {},
-            }
-            return Response(response_payload)
-
-        else :    
-            if type=='Individual':
-                user_object.country_code=country_code
-                user_object.type=type
-                user_object.mobile=mobile
-                user_object.fcm_token=fcm_token
-                user_object.role='customer'
-                user_object.save()
-                profile, created = Profile.objects.get_or_create(user=user_object)
-                profile.save()
-                user_object.save()
-                otp_object,created =MobileOTP.objects.get_or_create(user=user_object)
-                otp_object.mobile=mobile
-                otp_object.otp=send_otp(mobile,country_code)["otp"]  
-                otp_object.time=int(float((datetime.now().timestamp())))
-                otp_object.save()
-                response_payload = {
-                'is_authenticated': True,
-                'status': status.HTTP_201_CREATED,
-                "mobile_no":str(user_object.mobile),
-                'messages': 'OTP send succesfully on your registered mobile number',
-                'result': [],
-                'additional_data': {},
-                }
-                return Response(response_payload)
         
-            else:
-                response_payload = {
-                'is_authenticated': False,
-                'status':status.HTTP_400_BAD_REQUEST,
-                'messages': 'This number is already registered as Individual',
-                'result': 'This number is already registered as Individual',
-                'additional_data': {},
+        else: 
+            response_payload = {
+            'is_authenticated': False,
+            'status': status.HTTP_400_BAD_REQUEST,
+            "mobile_no":str(user_object.mobile),
+            'messages': 'Invalid Mobile Number',
+            'result': [],
+            'additional_data': {},
             }
-                return Response(response_payload)
+            return Response(response_payload)
             
 
 
@@ -254,12 +231,12 @@ class VerifyOTPView(viewsets.ViewSet):
             }
             return Response(response_payload)
         try:
-            user = User.objects.get(mobile=mobile)
+            user = User.objects.get(mobile=mobile) # this will fail if multiple mobile number exist
         except:
             response_payload = {
                 'is_authenticated': False,
                 'status':status.HTTP_400_BAD_REQUEST,
-                'messages':'Mobile number not valid',
+                'messages':'Mobile number not valid or Multiple entry exist with this mobile number',
                 'result':[] ,
                 'additional_data': {},
             }
@@ -302,7 +279,13 @@ class VerifyOTPView(viewsets.ViewSet):
                     'result': data,
                     'additional_data': {},
                 }
-
+                try:
+                    user = User.objects.filter(mobile=mobile, fcm_token__isnull=False).values('fcm_token')
+                    token = [item['fcm_token'] for item in user] 
+                    # send_notification(["cpB_CRXlSiaazX4aDC1WTv:APA91bGu2yA3XK_ELitRIaLaE6x8oPa3aDv9Kh2lOdNskKHr0A1k2vaL6BIhuV5AmLh4wBXEbKlNLKXTKJqvgncK8KAuxrsVLtAxh8wh7cffoZFzmMuU4Xw2rk22Nk-YpnHpL3WsWXWT"], "Login Succesful", "You have succesfully logged into the app")
+                    send_notification(token, "Login Succesful", "You have succesfully logged into the app")
+                except:
+                    pass                  
                 return Response(response_payload)
             else:
                 response_payload = {
@@ -322,8 +305,8 @@ class VerifyOTPView(viewsets.ViewSet):
                 'result': [],
                 'additional_data': {},
             }
-
             return Response(response_payload)
+    
 
 class LogoutView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -378,17 +361,59 @@ class OrganizationView(APIView):
         country_code = request.data.get('country_code')
 
         if not re.fullmatch("[A-Za-z]{2,25}( [A-Za-z]{2,25})?",name):
-            return JsonResponse({'messages':'name should be alphabet only'})
-        if not re.fullmatch("[A-Za-z]{2,25}( [A-Za-z]{2,25})?",organization_name):
-            return JsonResponse({'messages':'name should be alphabet only'})
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': 'Name should be alphabetical',
+                'result': '',
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        # if not re.fullmatch("[A-Za-z]{2,25}( [A-Za-z]{2,25})?",organization_name):
+        #     response_payload = {
+        #         'is_authenticated': False,
+        #         'status':status.HTTP_400_BAD_REQUEST,
+        #         'messages': 'Organization Name should be alphabetical',
+        #         'result': '',
+        #         'additional_data': {},
+        #     }
+        #     return Response(response_payload)
         if not re.match('([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+',email):
-            return JsonResponse({'messages':'email not valid'})
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': 'Please enter valid email id',
+                'result': '',
+                'additional_data': {},
+            }
+            return Response(response_payload)
         if not re.match("^\\d{9,13}$",mobile):
-            return JsonResponse({'messages':'number is not valid'})
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': 'mobile number not valid',
+                'result': '',
+                'additional_data': {},
+            }
+            return Response(response_payload)
         if not re.match("^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$",gst):
-            return JsonResponse({'messages':'enter a valid gst'})
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': 'Enter a valid gst number',
+                'result': '',
+                'additional_data': {},
+            }
+            return Response(response_payload)
         if not re.match("[A-Za-z]{5}\d{4}[A-Za-z]{1}",pan):
-            return JsonResponse({'messages':'enter a valid pan number'})
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': 'Enter valid pan number',
+                'result': '',
+                'additional_data': {},
+            }
+            return Response(response_payload)
         if User.objects.filter(mobile=mobile).exists():
             response_payload = {
                 'is_authenticated': False,
@@ -422,7 +447,7 @@ class OrganizationView(APIView):
         respone_payload={
             'is_authenticated': True,
             'status': status.HTTP_201_CREATED,
-            'message': 'User registered successfully.',
+            'messages': 'User registered successfully.',
             'result': pay_load,
             'additional_data': {}
         }
@@ -697,23 +722,12 @@ class CreateeQueteView(viewsets.ViewSet):
         starting_point=request.data.get('starting_point')
         destination=request.data.get('destination')
         material_weight=request.data.get('material_weight')
-        
+        slat=request.data.get('slat')
+        slong=request.data.get('slong')
+        dlat=request.data.get('dlat')
+        dlong=request.data.get('dlong')
         id=request.user.id
-        print('ambient_light',ambient_light)
-        print('humidity',humidity)
-        print('pitch_angle',pitch_angle)
-        print('roll_angle',roll_angle)
-        print('temprature',temprature)
-        print('tilt',tilt)
-        print('material_subtype',material_subtype)
-        print('material_type',material_type)
-        print('other_constraints',other_constraints)
-        print('truck_type',truck_type)
-        print('starting_date',starting_date)
-        print('starting_time',starting_time)
-        print('starting_point',starting_point)
-        print('destination',destination)
-        print('material_weight',material_weight)
+        
         if not starting_point:
             response_payload = {
                 'is_authenticated': False,
@@ -771,15 +785,15 @@ class CreateeQueteView(viewsets.ViewSet):
 
             return Response(response_payload)
         
-        if not re.fullmatch("^[0-9]*$",material_weight):
-            response_payload = {
-                'is_authenticated': False,
-                'status':status.HTTP_400_BAD_REQUEST,
-                'messages': "enter a valid material weight",
-                'result': [],
-                'additional_data': {},
-                }
-            return Response(response_payload)
+        # if not re.fullmatch("^[0-9]*$",material_weight):
+        #     response_payload = {
+        #         'is_authenticated': False,
+        #         'status':status.HTTP_400_BAD_REQUEST,
+        #         'messages': "enter a valid material weight",
+        #         'result': [],
+        #         'additional_data': {},
+        #         }
+        #     return Response(response_payload)
         material_instance=Material()
         material_instance.material_type=material_type
         material_instance.save()
@@ -790,9 +804,9 @@ class CreateeQueteView(viewsets.ViewSet):
         subtype_instance.material_type=material_type
         subtype_instance.save()
         trip_instance=Trip.objects.create(submaterial=subtype_instance,material=material_instance,user_id=id,trip_status='requested',starting_point=starting_point,\
-            destination=destination,truck_type=truck_type,starting_date=starting_date,other_constraints=other_constraints,starting_time=starting_time
-                                          
-                                          
+            destination=destination,truck_type=truck_type,starting_date=starting_date,other_constraints=other_constraints,starting_time=starting_time,slat=slat,\
+                slong=slong, dlat=dlat,dlong=dlong,
+                                                   
                                           
                                           )
         trip_instance.save()
@@ -1026,8 +1040,10 @@ class SendNotification(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
     def create(self,request):
         user = User.objects.filter(fcm_token__isnull=False).values('fcm_token')
+        # print(user)
         fcm_tokens = [item['fcm_token'] for item in user] 
         print(fcm_tokens)
+        # fcm_tokens = ['cpB_CRXlSiaazX4aDC1WTv:APA91bGu2yA3XK_ELitRIaLaE6x8oPa3aDv9Kh2lOdNskKHr0A1k2vaL6BIhuV5AmLh4wBXEbKlNLKXTKJqvgncK8KAuxrsVLtAxh8wh7cffoZFzmMuU4Xw2rk22Nk-YpnHpL3WsWXWT' ]
         firebase_object=FirePushNotication.objects.filter(fire_type=1).last()
         send_notification(fcm_tokens, firebase_object.title , firebase_object.description)
         return JsonResponse({"messages":"notification sent"})
@@ -1366,8 +1382,8 @@ class Orderid_generate(viewsets.ViewSet):
                             'messages': 'Valid coupon code not found',
                         }
                         return Response(response_payload)
-                
-
+            # coupon ends
+            
             if not trip_id or not re.fullmatch("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",trip_id):
                 response_payload = {
                     'status':status.HTTP_401_UNAUTHORIZED,
@@ -1404,50 +1420,40 @@ class Orderid_generate(viewsets.ViewSet):
 
             notes={'Reason':'Testing razorpay'}
             
-            name = Trip.objects.values('id')
-            print(name)
-            for x in name:
-                print(x['id'])
-                if str(trip_id) == str(x['id']):
-                    print("yes")
-                    if Trip.objects.filter(id=trip_id, user_id=id).exists():
-                        client = razorpay.Client(auth=("rzp_test_AyroicDEhCgzZd", "gxZBaxiZkF0AK3MEpKMqn3G1"))
-                        payment = client.order.create({'amount':amount_paid, 'currency':'INR', 'notes':notes})
-                        print(payment)
-                        print("Order id created!!")
-                        x=Trip.objects.get(id=trip_id, user_id=id)
-                        x.amount=amount
-                        #print(payment['id'])
-                        x.razorpay_order_id=payment['id']
-                        x.gst_percent=gst_per
-                        x.amount_paid=(int(amount_paid))
-                        x.gst = gst
+            
+            if Trip.objects.filter(id=trip_id, user_id=id).exists():
+                client = razorpay.Client(auth=("rzp_test_AyroicDEhCgzZd", "gxZBaxiZkF0AK3MEpKMqn3G1"))
+                payment = client.order.create({'amount':amount_paid, 'currency':'INR', 'notes':notes})
+                print(payment)
+                print("Order id created!!")
+                trip_order=Trip.objects.get(id=trip_id, user_id=id)
+                trip_order.amount=amount
+                #print(payment['id'])
+                trip_order.razorpay_order_id=payment['id']
+                trip_order.gst_percent=gst_per
+                trip_order.amount_paid=(int(amount_paid))
+                trip_order.gst = gst
 
-                        if coupon_code:
-                            x.coupon_id=coupon_id
-                        x.save()   
-                        response_payload = {
-                        'is_authenticated': True,
-                        'status':status.HTTP_200_OK,
-                        'messages': "Order id generated successfully",
-                        'result': payment,
-                        'additional_data': {},
-                    }
-                        return Response(response_payload) 
-                    else:
-                         response_payload = {
+                if coupon_code:
+                    x.coupon_id=coupon_id
+                trip_order.save()   
+
+                response_payload = {
+                'is_authenticated': True,
+                'status':status.HTTP_200_OK,
+                'messages': "Order id generated successfully",
+                'result': payment,
+                'additional_data': {},
+                 }
+                return Response(response_payload) 
+            else:
+                response_payload = {
                 'is_authenticated': False,
                 'status': status.HTTP_401_UNAUTHORIZED,
                 'messages': 'Trip ID for this user not exist.',
             }
-                         return Response(response_payload)  
-
-            response_payload = {
-                'is_authenticated': False,
-                'status': status.HTTP_401_UNAUTHORIZED,
-                'messages': 'Trip ID do not exist',
-            }
-            return Response(response_payload)        
+                return Response(response_payload)  
+        
 
 
               
@@ -1489,7 +1495,10 @@ class Payment_Verfication(viewsets.ViewSet):
                 'messages': 'Valid Trip ID not found',
             }
             return Response(response_payload)
+        
+        
         if Trip.objects.filter(user_id=id,id=trip_id).exists():
+            x = Trip.objects.get(user_id=id,id=trip_id)
             try:
                 client = razorpay.Client(auth=("rzp_test_AyroicDEhCgzZd", "gxZBaxiZkF0AK3MEpKMqn3G1"))
                 razorpay_order = client.order.fetch(razorpay_order_id)
@@ -1499,16 +1508,15 @@ class Payment_Verfication(viewsets.ViewSet):
                 'razorpay_order_id': razorpay_order_id,
                 'razorpay_payment_id': razorpay_payment_id,
                 'razorpay_signature': razorpay_signature
-                })
-                queryset = Trip.objects.filter(user_id=id,id=trip_id)
-                for x in queryset:
-                    print("ok")
-                    x.razorpay_payment_id=razorpay_payment_id
-                    x.razorpay_signature=razorpay_signature
-                    x.payment_status=razorpay_order['status']
-                    x.trip_status='upcoming'
-                    x.payment_date=datetime.now()
-                    x.save()   
+                })                
+                print("ok")
+                x.razorpay_order_id = razorpay_order_id
+                x.razorpay_payment_id=razorpay_payment_id
+                x.razorpay_signature=razorpay_signature
+                x.payment_status=razorpay_order['status']
+                x.trip_status='upcoming'
+                x.payment_date=datetime.now()
+                x.save()   
                 response_payload = {
                         'is_authenticated': True,
                         'status':status.HTTP_200_OK,
@@ -1518,15 +1526,13 @@ class Payment_Verfication(viewsets.ViewSet):
                     }
                 return Response(response_payload)
             except Exception as e:   
-                queryset = Trip.objects.filter(user_id=id,id=trip_id)
                 status1=client.order.payments(razorpay_order_id)
                 dict=status1['items'][-1]
                 issue=dict['error_description']
-                for x in queryset:
-                    x.payment_status=razorpay_order['status']
-                    x.payment_date=datetime.now()
-                    x.payment_issue=issue
-                    x.save()   
+                x.payment_status=razorpay_order['status']
+                x.payment_date=datetime.now()
+                x.payment_issue=issue
+                x.save()   
                 response_payload = {
                     'is_authenticated': False,
                     'status':status.HTTP_400_BAD_REQUEST,
@@ -1592,7 +1598,7 @@ class TrackerLivelocation(APIView):
          
         trip_serializer= TripOngoingSerializer(trip_obj)
         trip_data=trip_serializer.data
-        tracker_trip_data=TrackerDeviceIntergrations.objects.filter(trip_id=trip_id,type="GPS Data")
+        tracker_trip_data=TrackerDeviceIntergrations.objects.filter(trip_id=trip_id,type="GPS Data").order_by('id')
         trakcer_serializer=TrackerDeviceIntergrationsAdminLocationSerializer(tracker_trip_data,many=True)
         trakcer_serializer_data=trakcer_serializer.data
         trip_data['trip']=trakcer_serializer_data
@@ -1887,7 +1893,8 @@ class DownloadInvoice(APIView):
 
 
             
-            total_amount = trip.gst + trip.amount
+            # total_amount = trip.gst + trip.amount
+            total_amount = trip.amount
             print(trip.user.first_name)
             print(trip.admin.company_name)
             print(trip.user.last_name)
@@ -2119,3 +2126,16 @@ class DeclineAdminResponseView(viewsets.ViewSet):
                         'additional_data': {},
                     }
             return Response(response_payload)
+        
+
+# class onTripStart(viewsets.ViewSet):
+#     permission_classes = (IsAuthenticated,)
+#     def create(self,request):
+#         id=request.user.id
+#         user = User.objects.filter(id=id,fcm_token__isnull=False).values('fcm_token')
+#         fcm_tokens = [item['fcm_token'] for item in user] 
+#         print(fcm_tokens)
+#         firebase_object=FirePushNotication.objects.filter(fire_type=1).last()
+#         print(firebase_object.title)
+#         send_notification(fcm_tokens, firebase_object.title , firebase_object.description)
+#         return JsonResponse({"messages":"notification sent"})

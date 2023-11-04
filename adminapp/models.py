@@ -50,7 +50,7 @@ class Truck(models.Model):
     pollution_certificate=models.ImageField(upload_to='pollution_certificate/',default=None,storage=AMS, null=True, blank=True)
     pollution_certificate1=models.ImageField(upload_to='pollution_certificate/',default="jack.jpg",storage=AMS, null=True, blank=True)
     pollution_expiry=models.CharField(max_length=20,null=True,blank=True)
-    capacity=models.FloatField(null=True,blank=True)
+    capacity=models.CharField(null=True,blank=True)
     height=models.IntegerField(null=True,blank=True)
     width=models.IntegerField(null=True,blank=True)
     tyre_count=models.IntegerField(null=True,blank=True)
@@ -132,8 +132,6 @@ class Trip(models.Model):
     payment_status=models.CharField(max_length=20,choices=PAYMENT_STATUS,default='pending')
     feedback=models.TextField(blank=True,null=True)
     rating=models.FloatField(null=True,blank=True)
-    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
-    updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
     payment_date = models.DateTimeField(null=True,blank=True)
     razorpay_order_id=models.CharField(max_length=100,null=True,blank=True)
     razorpay_payment_id=models.CharField(max_length=100,null=True,blank=True)
@@ -152,6 +150,12 @@ class Trip(models.Model):
     invoice = models.FileField(upload_to="invoice/",storage=AMS, null=True, blank=True)
     trip_id_show=models.CharField(max_length=15,unique=True,null=True,blank=True)
     gst = models.DecimalField(max_digits=100, decimal_places=2, null=True,blank=True)
+    slat=models.CharField(max_length=250,null=True,blank=True)
+    slong=models.CharField(max_length=250,null=True,blank=True)
+    dlat=models.CharField(max_length=250,null=True,blank=True)
+    dlong=models.CharField(max_length=250,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
+    updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
     
     def save(self, *args, **kwargs):
         if not self.trip_id_show:

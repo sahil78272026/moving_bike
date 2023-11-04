@@ -134,15 +134,28 @@ class TrackerDeviceIntergrationsAdminDetailSerializer(serializers.ModelSerialize
         )
 
 class TripOngoingSerializer(serializers.ModelSerializer):
+    dest_latlong = serializers.SerializerMethodField()
+    start_latlong=serializers.SerializerMethodField()
     class Meta:
         model=Trip
         fields=(
             'id',
             'starting_point',
+            'slat',
+            'slong',
             'destination',
+            'dlat',
+            'dlong',
             'trip_status',
+            'dest_latlong',
+            'start_latlong'
+            
             
         )
+    def get_dest_latlong(self, obj):
+        return f"{obj.dlat},{obj.dlong}"
+    def get_start_latlong(self,obj):
+        return f"{obj.slat},{obj.slong}"
 class AllTripOngoingSerializer(serializers.ModelSerializer):
     trip_id=serializers.SerializerMethodField()
     truck_no=serializers.SerializerMethodField()

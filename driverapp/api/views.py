@@ -617,7 +617,7 @@ class GoogleTripTrackerLatLongView(viewsets.ViewSet):
         
 
             
-            
+
     
 class TrackerCallBackURL(viewsets.ViewSet):
     permission_classes = (AllowAny,)
@@ -651,7 +651,16 @@ class TrackerCallBackURL(viewsets.ViewSet):
         timeStamp = request.data.get("timeStamp") or  "2023-10-05 09:22:54"
         data=request.data.get('data')
     
-        print('trip_id',trip_id)
+        # def timeStamp_value_converted(value):
+        #     if value == "RealTime":
+        #         data = timeStamp
+        #     else:
+        #         value = int(value)
+        #         timestamp_datetime = datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")
+        #         new_datetime = timestamp_datetime - timedelta(seconds=value)
+        #         data = new_datetime.strftime("%Y-%m-%d %H:%M:%S.%f %z")
+        #     return data
+        
         if data[:2]=='01':
             tracker_decrypted_obj=tracker_dcryted_payload_01(data)
             tracker_device_obj=TrackerDeviceIntergrations()
@@ -672,8 +681,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.device=device
             tracker_device_obj.data=data
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data.
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
             
@@ -686,8 +699,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.device=device
             tracker_device_obj.data=data
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
         elif data[:2]=='03' or data[:2]=='30' or data[:2]=='33':
@@ -698,8 +715,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.battery_level=tracker_decrypted_obj['battery_level']
             tracker_device_obj.temperature=tracker_decrypted_obj['temperature']
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
            
@@ -720,8 +741,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.device=device
             tracker_device_obj.data=data
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
         elif data[:3]=='004' or data[:4]=='0004':
@@ -742,8 +767,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
                 tracker_device_obj.device=device
                 tracker_device_obj.data=data
                 tracker_device_obj.seqNumber = seqNumber
-                time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-                tracker_device_obj.timeStamp = time_data[0]
+                # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+                # tracker_device_obj.timeStamp = time_data[0]
+                # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+                # print('time_data',time_data)
+                # tracker_device_obj.timeStamp = time_data
+                tracker_device_obj.timeStamp=timeStamp
                 tracker_device_obj.trip_id=trip_id
                 tracker_device_obj.save()
             else:
@@ -763,8 +792,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
                 tracker_device_obj.device=device
                 tracker_device_obj.data=data
                 tracker_device_obj.seqNumber = seqNumber
-                time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-                tracker_device_obj.timeStamp = time_data[0]
+                # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+                # tracker_device_obj.timeStamp = time_data[0]
+                # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+                # print('time_data',time_data)
+                # tracker_device_obj.timeStamp = time_data
+                tracker_device_obj.timeStamp=timeStamp
                 tracker_device_obj.trip_id=trip_id
                 tracker_device_obj.save()
         #=====need to update==========
@@ -774,8 +807,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.device=device
             tracker_device_obj.data=data
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data'
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
         #=====need to update==========
@@ -785,8 +822,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.device=device
             tracker_device_obj.data=data
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data'
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
         #=====need to update==========  
@@ -808,8 +849,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.device=device
             tracker_device_obj.data=data
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
             
@@ -836,8 +881,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.device=device
             tracker_device_obj.data=data
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
         elif data[:2]=='CE' or data[:2]=='0E':
@@ -846,8 +895,12 @@ class TrackerCallBackURL(viewsets.ViewSet):
             tracker_device_obj.device=device
             tracker_device_obj.data=data
             tracker_device_obj.seqNumber = seqNumber
-            time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
-            tracker_device_obj.timeStamp = time_data[0]
+            # time_data=[timeStamp if tracker_decrypted_obj['mac_time']=="RealTime" else (datetime.strptime(timeStamp, "%Y-%m-%d %H:%M:%S.%f %z")- timedelta(seconds=tracker_decrypted_obj['mac_time'])).strftime("%Y-%m-%d %H:%M:%S.%f %z")]
+            # tracker_device_obj.timeStamp = time_data[0]
+            # time_data=timeStamp_value_converted(tracker_decrypted_obj['mac_time'])
+            # print('time_data',time_data)
+            # tracker_device_obj.timeStamp = time_data
+            tracker_device_obj.timeStamp=timeStamp
             tracker_device_obj.trip_id=trip_id
             tracker_device_obj.save()
         
@@ -1129,6 +1182,7 @@ class DriverTripStartOTPView(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
     def create(self,request):
         id=request.user.id
+        # id = request.data.get('id')
         # print(id)
         trip_id=request.data.get('trip_id')
         mobile = request.data.get('mobile')
@@ -1194,6 +1248,7 @@ class DriverVerifyOTPView(viewsets.ViewSet):
     permission_classes=(IsAuthenticated,)
     def create(self, request):
         id=request.user.id
+        # id = request.data.get('id')
         print("######",id)
         otp = request.data.get('otp')
         mobile = request.data.get('mobile')
@@ -1253,21 +1308,31 @@ class DriverVerifyOTPView(viewsets.ViewSet):
                 trip_obj.driver_trip_start_date=datetime.now()
                 trip_obj.save()
                 try:
-                    user = User.objects.filter(fcm_token__isnull=False, id=str(trip_obj.admin)).values('fcm_token')
-                    fcm_tokens = [item['fcm_token'] for item in user] 
-                    print(fcm_tokens)
-                    firebase_object=FirePushNotication.objects.filter(fire_type='Trip start notification', role='admin').last()
-                    send_notification(fcm_tokens, firebase_object.title , firebase_object.description)
-                    print("Notification sent to Admin")
-                    print(trip_obj.user)
-                    print(type(trip_obj.user))
-                    user = User.objects.filter(fcm_token__isnull=False, id=str(trip_obj.user)).values('fcm_token')
-                    fcm_tokens1 = [item['fcm_token'] for item in user] 
-                    print("okkkkkkkkkkkkkkkkkkkkkkk")
-                    print(fcm_tokens1)
-                    firebase_object=FirePushNotication.objects.filter(fire_type='Trip start notification', role='customer').last()
-                    send_notification(fcm_tokens1, firebase_object.title , firebase_object.description)
-                    print("Notification sent to Customer")
+                    try:
+                        user = User.objects.filter(fcm_token__isnull=False, id=str(trip_obj.admin)).values('fcm_token')
+                        fcm_tokens_admin = [item['fcm_token'] for item in user] 
+                        print(fcm_tokens_admin)
+                        firebase_object=FirePushNotication.objects.filter(fire_type='Trip start notification', role='admin').last()
+                        # send_notification(fcm_tokens, firebase_object.title , firebase_object.description)
+                        send_notification(fcm_tokens_admin, "Trip Started" , "Your Trip has been started")
+                        print("Notification sent to Admin")
+                        print(trip_obj.user)
+                        print(type(trip_obj.user))
+                        user = User.objects.filter(fcm_token__isnull=False, id=str(trip_obj.user)).values('fcm_token')
+                        fcm_tokens_customer = [item['fcm_token'] for item in user]
+                        print(fcm_tokens_customer)
+                        firebase_object=FirePushNotication.objects.filter(fire_type='Trip start notification', role='customer').last()
+                        # send_notification(fcm_tokens1, firebase_object.title , firebase_object.description)
+                        send_notification(fcm_tokens_customer, "Trip Started" , "Your Trip has been started")
+                        print("Notification sent to Customer")
+
+                        driver = User.objects.filter(id=id, fcm_token__isnull=False).values("fcm_token")
+                        fcm_token_driver = [item['fcm_token'] for item in driver]
+                        send_notification(fcm_token_driver, "Trip Started" , "Your Trip has been started")
+                        print("Notification sent to Driver")
+                    except:
+                        pass
+
                     #return Response({"messages":"notification sent"})
                     response_payload = {
                     'is_authenticated': True,

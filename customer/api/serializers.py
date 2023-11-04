@@ -127,9 +127,17 @@ class UpdateKYCSerializer(serializers.ModelSerializer):
         fields=['id','kyc_numer','kyc_file']
 
 class PaymentHistorySerializer(serializers.ModelSerializer):
+    amount_paid = serializers.SerializerMethodField()
+    payment_date = serializers.SerializerMethodField()
     class Meta:
         model=Trip
         fields=['id','amount_paid','payment_date','payment_status', 'razorpay_payment_id', 'razorpay_order_id','payment_issue']
+    
+    def get_amount_paid(self, trip_obj):
+        return trip_obj.amount_paid//100
+    
+    def get_payment_date(self, trip_obj):
+        return trip_obj.payment_date.strftime('%Y-%m-%d,%H:%M:%S')
 
 
 class Coupon_List_Serializer(serializers.ModelSerializer):

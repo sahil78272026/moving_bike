@@ -11,7 +11,7 @@ from customer.api.sendmobileotp import send_otp
 from customer.models import MobileOTP, User
 from rest_framework import status
 from rest_framework_simplejwt.serializers import RefreshToken
-from superadmin.api.serializers import AdminSubscriptionSerializer, SuperadminLoginSerializer, TrackerListInfoSerializer, TrackerListSerializer
+from superadmin.api.serializers import AdminSubscriptionSerializer, SuperadminLoginSerializer, TrackerListInfoSerializer, TrackerListSerializer, VendorDetailSerializer
 import re
 from adminapp.models import AdminTripDetails, Trip,AdminProfile
 from rest_framework import generics
@@ -1093,7 +1093,12 @@ class CreateCouponCodeAPIView(generics.GenericAPIView):
                     'is_authenticated': True,
                     'status': status.HTTP_200_OK,
                     'messages': "Coupon Created Succesfully",
-                    'result': {},
+                    'result': 
+                        {
+                            "Coupon Code": coupon_code,
+                            "Coupon Amount": coupon_amt
+                        }
+                    ,
                     'additional_data': {},
                 }
             return Response(response_payload)
@@ -1142,11 +1147,12 @@ class AssignCoupon(generics.GenericAPIView):
             get_user.coupon_code=coupon_code
             get_user.save()
             coupon.user_id = user_id
+            coupon.type = 'specific'
             coupon.save()
             response_payload = {
                         'is_authenticated': True,
                         'status': status.HTTP_200_OK,
-                        'messages': f"{coupon_code} Coupon Assigned to User Given User",
+                        'messages': f"{coupon_code} Coupon Assigned to Given User",
                         'result': '',
                         'additional_data': {},
                     }
@@ -1156,12 +1162,12 @@ class AssignCoupon(generics.GenericAPIView):
 class ListAllAvailableCouponsToApply(generics.GenericAPIView):
     # permission_classes = (IsAuthenticated,)
     def get(self,request):
-        coupons = Coupon.objects.filter(user_id=None)
+        coupons = Coupon.objects.filter(user_id=None, type="common")
         serializer = Coupon_List_Serializer(coupons, many=True)
         response_payload = {
                     'is_authenticated': True,
                     'status': status.HTTP_200_OK,
-                    'messages': "Available Coupons",
+                    'messages': "Available Common Coupons",
                     'result': serializer.data,
                     'additional_data': {},
                 }
@@ -1378,20 +1384,245 @@ class AdminPaymentDetailsView(viewsets.ViewSet):
                     'additional_data': {},
                 }
             return Response(response_payload)        
-
-
-
-
-
+    
+class SuperadminCreateAdminViewSet(viewsets.ViewSet):
+    permission_classes = (IsAuthenticated)
+    def create(self, request):
+        company_name = request.data.get('company_name')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        mobile = request.data.get('mobile')
+        country_code = request.data.get('country_code')
+        email = request.data.get('email')
+        gst = request.data.get('gst')
+        pan_number = request.data.get('pan_number')
+        address=request.data.get('address')
+        password = request.data.get('password')
+        confirmPassword = request.data.get('confirm_password') or request.data.get('confirmPassword')
+        role=request.data.get('role')
+        fcm_token=request.data.get('fcm_token')
+        print("fcm token",fcm_token)
+        if not company_name:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "Company name is not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
         
-
-
-
-
-
-
-
+        if AdminProfile.objects.filter(company_name=company_name).exists():
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "This company name is already registered with us",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not first_name:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "First name not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not last_name:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "Last name not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not mobile:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "Mobile number not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if User.objects.filter(mobile=mobile).exists():
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "User with this mobile number already exists",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not country_code:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "Country Code not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not email:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "Email ID not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if User.objects.filter(email=email).exists():
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "User with this email already exists",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+            
+        if not re.match('([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+',email):
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "Email ID not valid",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+            
+        if not gst:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "gst not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not pan_number:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "pan number not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not len(pan_number)<=10:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages': "Pan number not is not greater than 10 digit",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not address:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages':  "address not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
         
+        if not password:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages':  "Password not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if not confirmPassword:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages':  "confirm Password  not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
 
-
-
+        if password != confirmPassword:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages':  'Password did not match ',
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        user_object = User()
+        user_object.first_name=first_name
+        user_object.last_name=last_name
+        user_object.email = email.lower()
+        user_object.set_password(password)
+        user_object.mobile = mobile
+        user_object.country_code = country_code
+        user_object.role="admin"
+        user_object.is_active=True
+        user_object.fcm_token=fcm_token
+        user_object.save()
+            
+        profile, created=AdminProfile.objects.get_or_create(user=user_object, gst=gst,pan_number=pan_number,company_name=company_name)
+        profile.save()
+        response_payload = {
+            'is_authenticated': True,
+            'status':status.HTTP_200_OK,
+            'messages': 'Admin Registration successfull',
+            'result': {},
+            'additional_data': {},
+        }
+        return Response(response_payload)
+class VendorDetailsView(viewsets.ViewSet):
+    permission_classes=(IsAuthenticated,)
+    def list(self,request):
+        admin_id=request.GET.get('admin_id')
+        if not admin_id:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages':  "Admin id not provided",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        try:
+            uuid_obj = uuid.UUID(admin_id) 
+        except ValueError:
+            response_payload = {
+                'is_authenticated': False,
+                'status': status.HTTP_400_BAD_REQUEST,
+                'messages': 'Please provide a valid admin id ',
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        if User.objects.filter(id=admin_id,role='admin').exists():
+            queryset=AdminProfile.objects.get(user_id=admin_id)
+            serializer=VendorDetailSerializer(queryset)
+            response_payload = {
+                'is_authenticated': True,
+                'status':status.HTTP_200_OK,
+                'messages': 'following are the admin details',
+                'result':serializer.data,
+                'additional_data': {},
+            }
+            return Response(response_payload)
+        else:
+            response_payload = {
+                'is_authenticated': False,
+                'status':status.HTTP_400_BAD_REQUEST,
+                'messages':  "This Admin id is not registered with us",
+                'result': {},
+                'additional_data': {},
+            }
+            return Response(response_payload)

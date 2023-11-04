@@ -812,6 +812,10 @@ class FleetAddView(viewsets.ViewSet):
         pollution_certificate1=request.data.get('pollution_certificate1')
         rc=request.data.get('rc')
         pollution_certificate=request.data.get('pollution_certificate')
+        pollution_certificate1= [ None  if pollution_certificate1 is "" else pollution_certificate1][0]
+        rc1= [ None  if rc1 is "" else rc1][0]
+        print("pollution_certificateff",pollution_certificate1)
+        print("rc1",rc1)
         if not (admin_id and truck_id):
             response_payload = {
                     'is_authenticated': False,
@@ -830,7 +834,7 @@ class FleetAddView(viewsets.ViewSet):
                     'additional_data': {},
                     }
             return Response(response_payload)
-        if not re.match("^[0-9]{1,9}$",capacity):
+        if not capacity:
             response_payload = {
                     'is_authenticated': False,
                     'status':status.HTTP_400_BAD_REQUEST,
@@ -907,21 +911,47 @@ class FleetAddView(viewsets.ViewSet):
                     }
             return Response(response_payload)
         if Truck.objects.filter(id=truck_id,admin_id=admin_id).exists():
-            Truck.objects.filter(id=truck_id,admin_id=admin_id).update(truck_no=truck_no,chassis_no=chassis_no,type=type,capacity=capacity,height=height,tyre_count=tyre_count,driver_id=driver_id,supervisor_id=supervisor_id,
-                                                                      container_no=container_no,registration_date=registration_date,width=width,pollution_expiry=pollution_expiry,rc_expiry=rc_expiry,
-                                                                       manufacturer=manufacturer,tracker_id=tracker_id)
             try:
-                User.objects.filter(id=driver_id).update(driver_status='On Trip')
-                AddDriver.objects.filter(driver_id=driver_id).update(status='False')
+                truck_obj=Truck.objects.get(id=truck_id)
+                existing_driver=truck_obj.driver
+                existing_tracker=truck_obj.tracker_id
+                print(existing_tracker)
+                # print(existing_driver.id)
             except:
-                None
+                pass
+            if driver_id:
+                if existing_driver and existing_driver.id != driver_id:
+                    try:
+                        User.objects.filter(id=existing_driver.id).update(driver_status='Available')
+                        AddDriver.objects.filter(driver_id=existing_driver.id).update(status=True)
+                    except:
+                        pass  # Handle the exception appropriately
+
+                try:
+                    User.objects.filter(id=driver_id).update(driver_status='On Trip')
+                    AddDriver.objects.filter(driver_id=driver_id).update(status=False)
+                except:
+                    pass  # Handle the exception appropriately
+            # existing_tracker = Truck.objects.get(id=truck_id,)
             try:
                 if tracker_id:
-                    TrackerDeviceInfo.objects.filter(admin_id=admin_id,device=tracker_id).update(tracker_assigned='True')
+                    if existing_tracker:
+                        if existing_tracker == tracker_id:
+                            TrackerDeviceInfo.objects.filter(admin_id=admin_id,device=tracker_id).update(tracker_assigned='True')
+                        else:
+                            TrackerDeviceInfo.objects.filter(admin_id=admin_id,device=existing_tracker).update(tracker_assigned='False')
+                            TrackerDeviceInfo.objects.filter(admin_id=admin_id,device=tracker_id).update(tracker_assigned='True')
+                    else:
+                        TrackerDeviceInfo.objects.filter(admin_id=admin_id,device=tracker_id).update(tracker_assigned='True')
                 else: 
                     None
             except:
                 None
+            Truck.objects.filter(id=truck_id,admin_id=admin_id).update(truck_no=truck_no,chassis_no=chassis_no,type=type,capacity=capacity,height=height,tyre_count=tyre_count,driver_id=driver_id,supervisor_id=supervisor_id,
+                                                                      container_no=container_no,registration_date=registration_date,width=width,pollution_expiry=pollution_expiry,rc_expiry=rc_expiry,
+                                                                       manufacturer=manufacturer,tracker_id=tracker_id)
+            truck_obj=Truck.objects.get(id=truck_id)
+            existing_driver=truck_obj.driver
             if rc1 is None and pollution_certificate1 is None:
                 truck=Truck.objects.get(id=truck_id,admin_id=admin_id)
             
@@ -2344,15 +2374,27 @@ class AssignTripView(viewsets.ViewSet):
         except:
             driver_id=None
         if Trip.objects.filter(id=trip_id).exists():
+            try:
+                existing_truck = Trip.objects.filter(id=trip_id).first()
+
+                if existing_truck:
+                    existing_truck_id = existing_truck.truck
+                    # print(existing_truck_id.id)
+                    try:
+                        Truck.objects.filter(id=existing_truck_id.id).update(avail_status=True)
+                    except:
+                        pass
+            except:
+                pass
             Trip.objects.filter(id=trip_id).update(truck_id=truck_id)
             Truck.objects.filter(id=truck_id).update(avail_status=False)
             try:
                 driver = User.objects.filter(id=driver_id).values('fcm_token')
-                print(driver)
+                # print(driver)
                 fcm_tokens = [item['fcm_token'] for item in driver] 
-                print(fcm_tokens)
+                # print(fcm_tokens)
                 firebase_object=FirePushNotication.objects.filter(fire_type='Trip start notification', role='driver').last()
-                print(firebase_object)
+                # print(firebase_object)
                 send_notification(fcm_tokens, firebase_object.title , firebase_object.description)
                 print("Notification sent to driver")
             except:
@@ -2537,7 +2579,7 @@ class TrackerLocationView(viewsets.ViewSet):
             
             trip_serializer= TripOngoingSerializer(trip_obj)
             trip_data=trip_serializer.data
-            tracker_trip_data=TrackerDeviceIntergrations.objects.filter(trip_id=trip_id,type="GPS Data")
+            tracker_trip_data=TrackerDeviceIntergrations.objects.filter(trip_id=trip_id,type="GPS Data").order_by('-id')
             trakcer_serializer=TrackerDeviceIntergrationsAdminLocationSerializer(tracker_trip_data,many=True)
             trakcer_serializer_data=trakcer_serializer.data
             trip_data['trip']=trakcer_serializer_data
@@ -2593,7 +2635,7 @@ class DriverListView(viewsets.ViewSet):
     permission_classes=(IsAuthenticated,)
     def list(self,request):
         admin_id=request.user.id
-        driver=AddDriver.objects.filter(admin=admin_id,is_deleted=False)
+        driver=AddDriver.objects.filter(admin=admin_id,status=True,is_deleted='False')
         payload=[]
         for x in driver:
             payload.append({
@@ -2811,13 +2853,19 @@ class AllDeviceLocationView(viewsets.ViewSet):
                 #         }
                 #     return Response(response_payload)
             queryset=Trip.objects.filter(id=y,trip_status='ongoing')[:10]
+            try:
+                address=TrackerDeviceIntergrations.objects.filter(trip_id=y).values_list('address',flat=True).last()
+                # print(address)
+            except:
+                address=None
             if data is not None:
                 for x in queryset:
                     payload1.append({
                         'trip_id':x.id,
                         'lat_long':data[-1],
                         'truck_no':x.truck.truck_no,
-                        'truck_id':x.truck.id
+                        'truck_id':x.truck.id,
+                        'address':address
                     })
             elif data==None:
                 payload1==None
