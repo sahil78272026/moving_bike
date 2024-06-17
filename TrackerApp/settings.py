@@ -35,9 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'customer.apps.CustomerConfig',
     'driverapp.apps.DriverappConfig',
-    'adminapp.apps.AdminappConfig', 
-    'superadmin.apps.SuperadminConfig', 
-    
+    'adminapp.apps.AdminappConfig',
+    'superadmin.apps.SuperadminConfig',
+
     #-------------third party library---------
     'rest_framework',
     'rest_framework_simplejwt',
@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "django_crontab",
     "storages"
-   
-    
+
+
 ]
 
 
@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 CORS_ALLOW_ALL_ORIGINS = True
@@ -90,15 +90,24 @@ WSGI_APPLICATION = 'TrackerApp.wsgi.application'
 
 
 DATABASES = {
-        'default': {
+        'second': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'postgres',
             'USER': 'citus',
             'PASSWORD': 'Admin@1234#',
             'HOST': 'unitetrackerdb.postgres.database.azure.com',
             'PORT': '5432',
-        }
+        },
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'ZAQ!zaq1',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
+
 
 
 # DATABASES = {
@@ -191,9 +200,9 @@ SIMPLE_JWT = {
 }
 
 REST_FRAMEWORK = {
-    
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
-       
+
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PARSER_CLASSES': [

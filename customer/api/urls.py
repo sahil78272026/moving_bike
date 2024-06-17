@@ -1,5 +1,5 @@
 from django.urls import path
-from customer.api.views import VendorlistView_new,KYC_statusView,Payment_historyView,Upload_Kyc,Add_addressbook,RaiseIssueView,CouponListView,Payment_Webhooks, Payment_Verfication,Orderid_generate,AcceptView,\
+from moving_bike.customer.api.views import VendorlistView_new,KYC_statusView,Payment_historyView,Upload_Kyc,Add_addressbook,RaiseIssueView,CouponListView,Payment_Webhooks, Payment_Verfication,Orderid_generate,AcceptView,\
     VendorlistView,CreateOTPView,VerifyOTPView,OrganizationView,TruckTypeView,MaterailTypeView,GetQouteView,TripRequestView,SendNotification,\
     success,payment,FeedbackView,TrackIdWIthTrackerView,AllNotificationView,UpdateProfile, DownloadInvoice,CreateeQueteView,TrackerLivelocation, ApplyCouponToSpecificCustomer, CustomerCoupon,DeclineAdminResponseView
 
@@ -43,8 +43,4 @@ urlpatterns = [
     path('apply_coupon/', ApplyCouponToSpecificCustomer.as_view()),
     path('customer_coupon/', CustomerCoupon.as_view()),
     path('decline_trip_resp/',DeclineAdminResponseView.as_view({'post':'create'}))
-
-   
-
-   
 ]
