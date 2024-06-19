@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_KEY = 'django-insecure-s!x29tmg65z4x&t!5(jy_+^-4ly%hxwrq3=bb9vn7a#69k&qku'
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['*','https://unitedevice.azurewebsites.net/','unitedevice.azurewebsites.net','http://10.247.6.30:7000']
 
 INSTALLED_APPS = [
@@ -90,22 +90,30 @@ WSGI_APPLICATION = 'TrackerApp.wsgi.application'
 
 
 DATABASES = {
-        'second': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'postgres',
-            'USER': 'citus',
-            'PASSWORD': 'Admin@1234#',
-            'HOST': 'unitetrackerdb.postgres.database.azure.com',
-            'PORT': '5432',
-        },
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'ZAQ!zaq1',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+        # 'second': {
+        #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        #     'NAME': 'postgres',
+        #     'USER': 'citus',
+        #     'PASSWORD': 'Admin@1234#',
+        #     'HOST': 'unitetrackerdb.postgres.database.azure.com',
+        #     'PORT': '5432',
+        # },
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'postgres',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'ZAQ!zaq1',
+    #     'HOST': 'localhost',
+    #     'PORT': '5432',
+    # },
+
+     'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+
+
 }
 
 

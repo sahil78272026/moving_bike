@@ -86,27 +86,27 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=True,null=True,blank=True)
     one_time_pwd=models.CharField(max_length=20,null=True,blank=True)
     role_staff_type = (
-        
+
         ('customer', 'customer'),
         ('user', 'user')  ,
         ('admin', 'admin'),
         ('supervisor','supervisor'),
         ('superadmin', 'superadmin'),
         ('driver', 'driver')
-      
+
     )
     role = models.CharField(max_length=14, choices=role_staff_type,null=True,blank=True)
     customer_type = (
-        
+
         ('Organization', 'Organization'),
-        ('Individual', 'Individual')  
-      
+        ('Individual', 'Individual')
+
     )
     driver_status_choices = (
         ('On trip', 'On trip'),
-        ('Available', 'Available')  
+        ('Available', 'Available')
     )
-    
+
     type = models.CharField(max_length=14, choices=customer_type,null=True,blank=True)
     kyc_numer=models.CharField(max_length=300,null=True,blank=True)
     kyc_file = models.ImageField(upload_to='KYC/',  null=True, blank=True)
@@ -140,10 +140,10 @@ class User(AbstractUser):
     issue=models.TextField(null=True,blank=True)
     priority_number = models.IntegerField(null=True,blank=True)
     priority_status = models.BooleanField(default=False)
-    
 
-    
-    
+
+
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -151,14 +151,14 @@ class User(AbstractUser):
 
     def __str__(self):
         return str(self.id)
-    
+
     # def __unicode__(self):
     #     return str(self.id)
 
 
 
     class Meta:
-        
+
         verbose_name_plural = "Users"
         db_table = "generic_user"
 
@@ -185,14 +185,14 @@ def unique_slug_generator(instance):
 def get_slug(sender, instance, *args, **kwargs):
     if instance.pk is None:
         instance.slug = unique_slug_generator(instance)
-        
-        
+
+
 #https://trackerfilestore.blob.core.windows.net/trackerbackendimage/trackerfilestore.blob.core.windows.net/profile_pictures/default.png
 
 class Coupon(models.Model):
     id = models.UUIDField(primary_key= True,default= uuid.uuid4,editable= False)
     COUPON_TYPE = (
-        
+
         ('common', 'common'),
         ('specific', 'specific'),
     )
@@ -208,7 +208,7 @@ class Coupon(models.Model):
 
     def __str__(self):
         return str(self.coupon_code)
-    
+
     class Meta:
         db_table = "coupon"
 
@@ -277,15 +277,15 @@ class Organization(models.Model):
     pan=models.CharField(max_length=10, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True,blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True,blank=True, null=True)
-    
+
     def save(self, *args, **kwargs):
         self.type = "Organization"
         super().save(*args, **kwargs)
-       
+
     class Meta:
         db_table = "organization"
 
-    
+
 class Material(models.Model):
     id=models.UUIDField(primary_key= True,default= uuid.uuid4,editable= False)
     material_type=models.CharField(max_length=50,null=True)
@@ -296,19 +296,19 @@ class Material(models.Model):
         return str(self.id)
     class Meta:
         db_table = "material"
-    
+
 class MaterialSubtype(models.Model):
     id=models.UUIDField(primary_key= True,default= uuid.uuid4,editable= False)
     material=models.ForeignKey(Material,default=None,on_delete=models.CASCADE)
     material_subtype=models.CharField(max_length=50,null=True)
     material_type=models.CharField(max_length=100,null=True,blank=True,default='short lived')
-    material_weight = models.CharField(null=True,blank=True)
-    temprature=models.CharField(null=True,blank=True)
-    humidity=models.CharField(null=True,blank=True)
-    tilt=models.CharField(null=True,blank=True,default=False)
-    ambient_light=models.CharField(null=True,blank=True)
-    pitch_angle=models.CharField(null=True,blank=True)
-    roll_angle=models.CharField(null=True,blank=True)
+    material_weight = models.CharField(max_length=100,null=True,blank=True)
+    temprature=models.CharField(max_length=100,null=True,blank=True)
+    humidity=models.CharField(max_length=100,null=True,blank=True)
+    tilt=models.CharField(max_length=100,null=True,blank=True,default=False)
+    ambient_light=models.CharField(max_length=100,null=True,blank=True)
+    pitch_angle=models.CharField(max_length=100,null=True,blank=True)
+    roll_angle=models.CharField(max_length=100,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
     is_active=models.BooleanField(default=False)
@@ -316,7 +316,7 @@ class MaterialSubtype(models.Model):
         return str(self.id)
     class Meta:
         db_table = "materialsubtype"
-    
+
 
 fire_choice = [
     ('1', '1'),#customer
@@ -334,15 +334,14 @@ class FirePushNotication(models.Model):
     updated_at = models.DateTimeField(auto_now=True,null=True,
                                       blank=True,)
     role=models.CharField(max_length=20,null=True,blank=True)
-    
+
     def __str__(self):
         return str(self.title)
     class Meta:
         db_table = "firepushnotication"
-    
+
 
 
 # class Photo(models.Model):
 #     image_file = models.ImageField(upload_to='profile_pictures', storage=AMS, null=True, blank=True )
 
-    

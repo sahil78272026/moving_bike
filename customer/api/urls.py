@@ -1,5 +1,5 @@
 from django.urls import path
-from moving_bike.customer.api.views import VendorlistView_new,KYC_statusView,Payment_historyView,Upload_Kyc,Add_addressbook,RaiseIssueView,CouponListView,Payment_Webhooks, Payment_Verfication,Orderid_generate,AcceptView,\
+from .views import VendorlistView_new,KYC_statusView,Payment_historyView,Upload_Kyc,Add_addressbook,RaiseIssueView,CouponListView,Payment_Webhooks, Payment_Verfication,Orderid_generate,AcceptView,\
     VendorlistView,CreateOTPView,VerifyOTPView,OrganizationView,TruckTypeView,MaterailTypeView,GetQouteView,TripRequestView,SendNotification,\
     success,payment,FeedbackView,TrackIdWIthTrackerView,AllNotificationView,UpdateProfile, DownloadInvoice,CreateeQueteView,TrackerLivelocation, ApplyCouponToSpecificCustomer, CustomerCoupon,DeclineAdminResponseView
 

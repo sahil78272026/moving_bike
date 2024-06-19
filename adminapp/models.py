@@ -8,7 +8,7 @@ class AdminProfile(models.Model):
     user=models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        
+
     )
     image = models.ImageField(upload_to='profile_pictures/',default='profile_pictures/default.png',storage=AMS, null=True, blank=True)
     gst=models.CharField(max_length=255,null=True,blank=True)
@@ -23,16 +23,16 @@ class AdminProfile(models.Model):
     resedential_proof=models.ImageField(upload_to='admin_documents/',storage=AMS,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True )
     updated_at = models.DateTimeField(auto_now=True, null=True,blank=True)
-    
-    
+
+
     def __str__(self):
         return str(self.user.first_name)
-    
+
     class Meta:
         db_table = "admin_profile"
 
-    
-    
+
+
 class Truck(models.Model):
     id = models.UUIDField(primary_key= True,default= uuid.uuid4,editable= False)
     admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vendor_id',null=True,blank=True)
@@ -50,7 +50,7 @@ class Truck(models.Model):
     pollution_certificate=models.ImageField(upload_to='pollution_certificate/',default=None,storage=AMS, null=True, blank=True)
     pollution_certificate1=models.ImageField(upload_to='pollution_certificate/',default="jack.jpg",storage=AMS, null=True, blank=True)
     pollution_expiry=models.CharField(max_length=20,null=True,blank=True)
-    capacity=models.CharField(null=True,blank=True)
+    capacity=models.CharField(max_length=100,null=True,blank=True)
     height=models.IntegerField(null=True,blank=True)
     width=models.IntegerField(null=True,blank=True)
     tyre_count=models.IntegerField(null=True,blank=True)
@@ -64,10 +64,10 @@ class Truck(models.Model):
     is_deleted=models.BooleanField(default=False)
     def __str__(self):
         return str(self.id) +" "+str(self.type)+" "+str(self.truck_no)
-    
+
     class Meta:
         db_table = "truck"
-    
+
 
 class AddDriver(models.Model):
     admin=models.ForeignKey(User,on_delete=models.CASCADE,related_name='admin')
@@ -86,7 +86,7 @@ class AddDriver(models.Model):
 #     updated_at = models.DateTimeField(auto_now=True)
 #     class Meta:
 #         db_table = "add_admin_user"
-    
+
 class AdminAccounts(models.Model):
     admin=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name='id_admin')
     supervisor=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name='id_supervisor')
@@ -99,7 +99,7 @@ class AdminAccounts(models.Model):
 
 class Trip(models.Model):
     STATUS = (
-        
+
         ('accepted', 'accepted'),
         ('declined', 'declined'),
         ('requested','requested'),
@@ -110,7 +110,7 @@ class Trip(models.Model):
     PAYMENT_STATUS=(
         ('done','done'),
         ('pending','pending')
-    )  
+    )
     id=models.UUIDField(primary_key= True,default= uuid.uuid4,editable= False)
     starting_point=models.TextField(blank = True,null=True)
     destination = models.TextField(blank = True,null=True)
@@ -156,7 +156,7 @@ class Trip(models.Model):
     dlong=models.CharField(max_length=250,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True,null=True,blank=True)
-    
+
     def save(self, *args, **kwargs):
         if not self.trip_id_show:
         # Generate trip id
@@ -165,7 +165,7 @@ class Trip(models.Model):
             uuid_part = str(self.id)[:6]
             self.trip_id_show = (start + end + uuid_part).upper()
         super().save(*args, **kwargs)
-        
+
     class Meta:
         db_table = "trip"
 
@@ -173,7 +173,7 @@ class AdminResponse(models.Model):
     CHOICES=(
         ('accept','accept'),
         ('declined','declined')
-    )  
+    )
     trip=models.ForeignKey(Trip,on_delete=models.CASCADE,null=True,blank=True)
     admin=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     response=models.CharField(choices=CHOICES,max_length=100)
@@ -187,7 +187,7 @@ class AdminResponse(models.Model):
 
 # class AdminTrip(models.Model):
 #     STATUS = (
-        
+
 #         ('accepted', 'accepted'),
 #         ('declined', 'declined'),
 #         ('requested','requested'),
@@ -202,7 +202,7 @@ class AdminResponse(models.Model):
 #         db_table = "admintrip"
 class AdminTripDetails(models.Model):
     STATUS = (
-        
+
         ('accepted', 'accepted'),
         ('declined', 'declined'),
         ('requested','requested'),
